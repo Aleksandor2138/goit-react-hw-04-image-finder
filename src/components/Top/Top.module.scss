@@ -1,0 +1,30 @@
+.top__btn{
+    // display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 5;
+    padding: 0;
+    border: none;
+    font: inherit;
+    color: inherit;
+    background-color: transparent;
+    cursor: pointer;
+    fill: #02be6d9d;
+    transition-property: fill;
+    transition: var(--main-transition);
+    &:hover {
+        fill: #02be6e;
+    }
+}
+
+.top__svg{
+    width: 45px;
+    height: 45px;
+}
+
+.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}

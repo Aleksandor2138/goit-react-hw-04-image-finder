@@ -8,15 +8,7 @@ export default class Modal extends Component {
     window.addEventListener('keydown', this.clickEscape);
   }
 
-  // Создаем корневой элемент в DOM для модального окна во время его открытия
-  // componentWillMount() {
-  //   this.root = document.createElement('div');
-  //   document.body.appendChild(this.root);
-  // }
-
-  // Удаляем корневой элемент в DOM для модального окна, после закритя модального окна
   componentWillUnmount() {
-    // document.body.removeChild(this.root);
     window.removeEventListener('keydown', this.clickEscape);
   }
 

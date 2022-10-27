@@ -19,7 +19,7 @@ export default class Searchbar extends Component {
     findPhoto=(event)=> {
         event.preventDefault();
         if (this.state.searchPhotoValue.trim() === '') {
-            Notiflix.Notify.warning('Please, fill out the search form');
+            Notiflix.Notify.failure('Please, fill out the search form');
             return
         }
         this.props.submitSearch(this.state.searchPhotoValue);

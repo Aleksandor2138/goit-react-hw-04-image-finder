@@ -1,10 +1,12 @@
 import { Component } from 'react';
+import Notiflix from 'notiflix';
 import SearchAPI from './SearchAPI/SearchAPI';
 import Searchbar from './Searchbar/Searchbar';
 import { ImagesGallery } from './Gallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import { LoadMore } from './Button/Button';
 import Modal from './Modal/Modal';
+// import Top from './Top/Top';
 
 const API = new SearchAPI();
 
@@ -49,11 +51,39 @@ export default class App extends Component {
         images: [...prevState.images, ...hits],
         isLoading: false,
       }));
+      return this.notiflix();
     } catch (error) {
       this.setState({
         isLoading: false,
       });
     }
+  };
+
+  notiflix = () => {
+    const { total, page } = this.state;
+    if (total > 0 && page === 1) {
+      return this.notiflixSuccess(total);
+    }
+    if (total === 0) {
+      return this.notiflixWarning();
+    }
+
+    if (Math.ceil(total / 12) === page) {
+      return this.notiflixInfo();
+    }
+  };
+  notiflixSuccess = total => {
+    Notiflix.Notify.success(`Hooray! We found ${total} images.`);
+  };
+  notiflixWarning = () => {
+    Notiflix.Notify.warning(
+      `Sorry, there are no images matching your search query. Please try again.`
+    );
+  };
+  notiflixInfo = () => {
+    Notiflix.Notify.info(
+      `We're sorry, but you've reached the end of search results.`
+    );
   };
 
   onSearchPhoto = searchPhotoValue => {
@@ -70,7 +100,7 @@ export default class App extends Component {
     console.log(this.state.request);
   };
 
-  toggleModal = (event) => {
+  toggleModal = event => {
     if (event.target.nodeName !== 'IMG') {
       return;
     }
@@ -78,7 +108,7 @@ export default class App extends Component {
       modal: event.target.dataset.src,
       alt: event.target.getAttribute('alt'),
     });
-  }
+  };
 
   resetModal = () => {
     this.setState({
@@ -102,6 +132,7 @@ export default class App extends Component {
         {modal !== '' && (
           <Modal src={modal} alt={alt} popap={this.resetModal} />
         )}
+        {/* <Top/> */}
       </>
     );
   }
