@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import Notiflix from 'notiflix';
 import SearchAPI from './SearchAPI/SearchAPI';
 import Searchbar from './Searchbar/Searchbar';
@@ -10,130 +10,119 @@ import Modal from './Modal/Modal';
 
 const API = new SearchAPI();
 
-export default class App extends Component {
-  state = {
-    images: [],
-    request: '',
-    isLoading: false,
-    button: false,
-    page: 1,
-    total: 1,
-    alt: '',
-    modal: '',
-  };
+const App = () => {
+  const [images, setImages] = useState([]);
+  const [request, setRequest] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [button, setButton] = useState(false);
+  const [page, setPage] = useState(0);
+  const [alt, setAlt] = useState('');
+  const [modal, setModal] = useState('');
 
-  async componentDidUpdate(_, prevState) {
-    const prevRequest = prevState.request;
-    const nextRequest = this.state.request;
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
-    if (prevRequest !== nextRequest) {
-      this.state.images = [];
-      this.state.page = 1;
-      this.serverAPI();
-    }
-    if (prevPage !== nextPage) {
-      this.serverAPI();
-    }
+
+  useEffect(() => {
+  if (page === 0) {
+      return
   }
+  serverAPI();
+  }, [page, request])
 
-  serverAPI = async () => {
+  const serverAPI = async () => {
     try {
-      this.setState({
-        isLoading: true,
-      });
-      API.page = this.state.page;
-      API.name = this.state.request;
+      // setButton(false);
+      setIsLoading(true);
+      API.page = page;
+      API.name = request;
       const data = await API.serverData();
-      this.state.total = await data.totalHits;
       const hits = await data.hits;
-      this.setState(prevState => ({
-        images: [...prevState.images, ...hits],
-        isLoading: false,
-      }));
-      return this.notiflix();
+      setImages(prev=>[...prev, ...hits]);
+      setIsLoading(false);
+      setButton(true);
+      return (notiflix());
     } catch (error) {
-      this.setState({
-        isLoading: false,
-      });
+      setIsLoading(false);
+      setButton(false);
     }
   };
 
-  notiflix = () => {
-    const { total, page } = this.state;
+  const notiflix = () => {
+    const total = API.total;
+    const page = API.page;
+    const perPage = API.perPage;
     if (total > 0 && page === 1) {
-      return this.notiflixSuccess(total);
+      if (perPage >= total) {
+        setButton(false);
+      }
+      return notiflixSuccess(total);
     }
     if (total === 0) {
-      return this.notiflixWarning();
+      setButton(false);
+      return notiflixWarning();
     }
 
     if (Math.ceil(total / 12) === page) {
-      return this.notiflixInfo();
+      setButton(false);
+      return notiflixInfo();
     }
   };
-  notiflixSuccess = total => {
+  const notiflixSuccess = total => {
     Notiflix.Notify.success(`Hooray! We found ${total} images.`);
   };
-  notiflixWarning = () => {
+  const notiflixWarning = () => {
     Notiflix.Notify.warning(
       `Sorry, there are no images matching your search query. Please try again.`
     );
   };
-  notiflixInfo = () => {
+  const notiflixInfo = () => {
     Notiflix.Notify.info(
       `We're sorry, but you've reached the end of search results.`
     );
   };
 
-  onSearchPhoto = searchPhotoValue => {
-    this.setState({
-      request: searchPhotoValue,
-    });
+  const onSearchPhoto = searchPhotoValue => {
+    setImages([]);
+    setPage(1)
+    setRequest (searchPhotoValue);
     console.log(searchPhotoValue);
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-    console.log(this.state.request);
+  const loadMore = () => {
+    setPage(prev => prev + 1);
+    console.log(request);
   };
 
-  toggleModal = event => {
+  const toggleModal = event => {
     if (event.target.nodeName !== 'IMG') {
       return;
     }
-    this.setState({
-      modal: event.target.dataset.src,
-      alt: event.target.getAttribute('alt'),
-    });
+    setModal(event.target.dataset.src);
+    setAlt(event.target.getAttribute('alt'));
   };
 
-  resetModal = () => {
-    this.setState({
-      modal: '',
-      alt: '',
-    });
+  const resetModal = () => {
+      setModal('');
+      setAlt('');
   };
-
-  render() {
-    const { images, isLoading, total, page, modal, alt } = this.state;
-    const buttonСondition =
-      total > 0 && Math.ceil(total / 12) !== page && !isLoading;
-    return (
-      <>
-        <Searchbar submitSearch={this.onSearchPhoto} />
-        {images.length !== 0 && (
-          <ImagesGallery images={images} showModal={this.toggleModal} />
-        )}
-        {this.state.isLoading && <Loader />}
-        {buttonСondition > 0 && <LoadMore loadMore={this.loadMore} />}
-        {modal !== '' && (
-          <Modal src={modal} alt={alt} popap={this.resetModal} />
-        )}
-        {/* <Top/> */}
-      </>
-    );
-  }
+  // const buttonСondition = () => {
+  //   const total = API.total;
+  //   const page = API.page;
+  //   if (total > 0 && Math.ceil(total / 12) !== page && !isLoading) {
+  //     setButton(false);
+  //   }
+  //   setButton(true);
+  // }
+  return (
+    <>
+      <Searchbar submitSearch={onSearchPhoto} />
+      {images.length !== 0 && (
+        <ImagesGallery images={images} showModal={toggleModal} />
+      )}
+      {isLoading && <Loader />}
+      {button> 0 && <LoadMore loadMore={loadMore} />}
+      {modal !== '' && (
+        <Modal src={modal} alt={alt} popap={resetModal} />
+      )}
+    </>
+  );
 }
+export default App;

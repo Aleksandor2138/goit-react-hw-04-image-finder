@@ -7,11 +7,11 @@ export default class SearchAPI {
     constructor() {
         this.name = '';
         this.page = 1;
+        this.perPage = 12;
         this.total = 0;
-        this.images = [];
     }
     async serverData() {
-        const serverDataURL = `${BASE_URL}?key=${API_KEY}&q=${this.name}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=12`;
+        const serverDataURL = `${BASE_URL}?key=${API_KEY}&q=${this.name}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=${this.perPage}`;
         try {
             const server = await axios.get(serverDataURL);
             const data = await server.data;
@@ -19,25 +19,4 @@ export default class SearchAPI {
             return data;
         } catch (error) {}
     }
-}
-
-
-// async componentDidUpdate(prevProps, prevState) {
-//     if (
-//       prevState.request !== this.state.request ||
-//       prevState.page !== this.state.page
-//     ) {
-//       try {
-//         const response = await axios.get(
-//           `?q=${this.state.request}&page=${this.state.page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
-//         );
-//         this.setState({
-//           images: this.state.images.concat(response.data.hits),
-//           isLoadind: false,
-//         });
-//         // Notiflix.Notify.success(`Hooray! We found ${response.data.hits.length} images.`);
-//       } catch (e) {
-//         console.log(e);
-//       }
-//     }
-//   }
+};
