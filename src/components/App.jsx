@@ -103,14 +103,6 @@ const App = () => {
       setModal('');
       setAlt('');
   };
-  // const buttonСondition = () => {
-  //   const total = API.total;
-  //   const page = API.page;
-  //   if (total > 0 && Math.ceil(total / 12) !== page && !isLoading) {
-  //     setButton(false);
-  //   }
-  //   setButton(true);
-  // }
   return (
     <>
       <Searchbar submitSearch={onSearchPhoto} />
